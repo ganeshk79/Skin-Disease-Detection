@@ -7,15 +7,20 @@ import numpy as np
 import os
 import werkzeug
 
+from dotenv import load_dotenv  # Add this import
+load_dotenv()  # Load environment variables
+
+# Disable TensorFlow logging
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Even more suppressed logging
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load the trained model
-model = load_model(os.path.abspath("sd_model.keras"))
+model = load_model("sd_model.keras")
 
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
-#class_names = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 class_names=['actinic keratosis', 'basal cell carcinoma','pigmented benign keratosis', 'dermatofibroma', 'melanoma', 'nevus', 'vascular lesion']
 
 @app.route('/predict', methods=['POST'])
@@ -33,12 +38,16 @@ def predict():
         # file.save(img_path)
         imagefile=request.files['file']
         filename =werkzeug.utils.secure_filename(imagefile.filename)
-        imagefile.save("./uploadimage/"+filename)
+	UPLOAD_FOLDER = "uploadimage"
+	os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure folder exists
+	img_path = os.path.join(UPLOAD_FOLDER, filename)
+	imagefile.save(img_path)
+
         img_path="./uploadimage/"+filename
 
         # Preprocess the image img = image.load_img(img_path, target_size=(192, 256), color_mode="rgb")
         # Change this line in your Flask app:
-        img = image.load_img(img_path, target_size=(32, 32), color_mode="rgb")
+	img = image.load_img(img_path, target_size=(192, 256), color_mode="rgb")
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
         img_array = img_array.astype('float32') / 255.0
@@ -58,5 +67,6 @@ def predict():
         return jsonify({'predicted_class': predicted_label})
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=4000)
-
+    # Run with Waitress for production
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)
