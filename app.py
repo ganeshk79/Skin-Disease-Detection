@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load the trained model
-model = load_model(os.path.abspath("D:\Python\github\Skin-Disease-Detection\sd_model.keras"))
+model = load_model(os.path.abspath("sd_model.keras"))
 
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
@@ -58,5 +58,5 @@ def predict():
         return jsonify({'predicted_class': predicted_label})
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=4000)
+    app.run(debug=True)
 
