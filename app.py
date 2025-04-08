@@ -65,7 +65,6 @@ def predict():
         #os.remove(img_path)
 
         return jsonify({'predicted_class': predicted_label})
-
+	    
 if __name__ == '__main__':
-    # Run with Waitress for production
-    app.run()
+    app.run(debug=False, host='0.0.0.0', port=5000)
