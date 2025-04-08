@@ -38,12 +38,13 @@ def predict():
         # file.save(img_path)
         imagefile=request.files['file']
         filename =werkzeug.utils.secure_filename(imagefile.filename)
-	UPLOAD_FOLDER = "uploadimage"
-	os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure folder exists
-	img_path = os.path.join(UPLOAD_FOLDER, filename)
-	imagefile.save(img_path)
+	# UPLOAD_FOLDER = "uploadimage"
+	# os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure folder exists
+	# img_path = os.path.join(UPLOAD_FOLDER, filename)
+	# imagefile.save(img_path)
 
-        img_path="./uploadimage/"+filename
+ #        img_path="./uploadimage/"+filename
+        img_path=filename
 
         # Preprocess the image img = image.load_img(img_path, target_size=(192, 256), color_mode="rgb")
         # Change this line in your Flask app:
