@@ -6,3 +6,4 @@ numpy
 werkzeug
 python-dotenv
 waitress
+gunicorn
