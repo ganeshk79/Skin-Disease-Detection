@@ -17,7 +17,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load the trained model
-model = load_model("sd_model.keras")
+model = load_model(os.path.join(os.path.dirname(__file__), "sd_model.keras"))
 
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
