@@ -43,7 +43,7 @@ def predict():
 	# img_path = os.path.join(UPLOAD_FOLDER, filename)
 	# imagefile.save(img_path)
 
- #        img_path="./uploadimage/"+filename
+ 	#img_path="./uploadimage/"+filename
         img_path=filename
 
         # Preprocess the image img = image.load_img(img_path, target_size=(192, 256), color_mode="rgb")
