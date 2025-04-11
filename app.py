@@ -28,13 +28,9 @@ UPLOAD_FOLDER = 'uploadimage'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# Load the trained model with memory optimization
+# Load the trained model
 model_path = os.path.join(os.path.dirname(__file__), "sd_model.keras")
 model = load_model(model_path)
-
-# Optimize model for inference
-model._make_predict_function()
-tf.keras.backend.clear_session()
 
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
@@ -64,10 +60,9 @@ def predict():
             img_array = img_array.astype('float32') / 255.0
 
             # Make prediction with memory optimization
-            with tf.device('/cpu:0'):  # Force CPU usage
-                predictions = model.predict(img_array, verbose=0, batch_size=1)
-                predicted_class = np.argmax(predictions, axis=1)[0]
-                predicted_label = class_names[predicted_class]
+            predictions = model.predict(img_array, verbose=0, batch_size=1)
+            predicted_class = np.argmax(predictions, axis=1)[0]
+            predicted_label = class_names[predicted_class]
 
             return jsonify({
                 'predicted_class': predicted_label,
