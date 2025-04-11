@@ -6,79 +6,76 @@ from tensorflow.keras.preprocessing import image # type: ignore
 import numpy as np
 import os
 import werkzeug
-import tensorflow as tf
 
-# Configure TensorFlow for memory efficiency
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-# Configure TensorFlow to use less memory
-gpus = tf.config.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(e)
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-UPLOAD_FOLDER = 'uploadimage'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+
+# Create upload directory if it doesn't exist
+if not os.path.exists("./uploadimage"):
+    os.makedirs("./uploadimage")
 
 # Load the trained model
-model_path = os.path.join(os.path.dirname(__file__), "sd_model.keras")
-model = load_model(model_path)
+model = load_model(os.path.abspath("D:\Python\github\Skin-Disease-Detection\sd_model.keras"))
 
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
 #class_names = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
-class_names=['actinic keratosis', 'basal cell carcinoma','pigmented benign keratosis', 'dermatofibroma', 'melanoma', 'melanocytic nevi', 'vascular lesion']
+class_names=['actinic keratosis', 'basal cell carcinoma','pigmented benign keratosis', 'dermatofibroma', 'melanoma', 'nevus', 'vascular lesion']
+
+@app.route('/')
+def home():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Skin Disease Detection API is running'
+    })
+
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy'})
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    try:
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file part'}), 400
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'})
 
-        imagefile = request.files['file']
-        if imagefile.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
 
+    if (request.method =="POST"):    
         # Save the uploaded image to a temporary location
-        filename = werkzeug.utils.secure_filename(imagefile.filename)
-        temp_path = os.path.join(UPLOAD_FOLDER, filename)
-        imagefile.save(temp_path)
+        # img_path = os.path.join('uploads', file.filename)
+        # file.save(img_path)
+        imagefile=request.files['file']
+        filename =werkzeug.utils.secure_filename(imagefile.filename)
+        imagefile.save("./uploadimage/"+filename)
+        img_path="./uploadimage/"+filename
 
-        try:
-            # Preprocess the image
-            img = image.load_img(temp_path, target_size=(32, 32), color_mode="rgb")
-            img_array = image.img_to_array(img)
-            img_array = np.expand_dims(img_array, axis=0)
-            img_array = img_array.astype('float32') / 255.0
+        # Preprocess the image img = image.load_img(img_path, target_size=(192, 256), color_mode="rgb")
+        # Change this line in your Flask app:
+        img = image.load_img(img_path, target_size=(32, 32), color_mode="rgb")
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+        img_array = img_array.astype('float32') / 255.0
 
-            # Make prediction with memory optimization
-            predictions = model.predict(img_array, verbose=0, batch_size=1)
-            predicted_class = np.argmax(predictions, axis=1)[0]
-            predicted_label = class_names[predicted_class]
+        # Make prediction
+        predictions = model.predict(img_array)
+        predicted_class = np.argmax(predictions, axis=1)[0]
+        predicted_label = class_names[predicted_class]
+        print("Predictions:", predictions)
+        print("Predicted class index:", predicted_class)
+        print("Predicted label:", predicted_label)
 
-            return jsonify({
-                'predicted_class': predicted_label,
-                'confidence': float(predictions[0][predicted_class])
-            })
 
-        finally:
-            # Clean up the uploaded image
-            try:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-            except Exception as e:
-                print(f"Error removing file: {str(e)}")
+        # Clean up the uploaded image
+        #os.remove(img_path)
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'predicted_class': predicted_label})
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=10000)
+    # Get port from environment variable or use default
+    app.run(host="0.0.0.0", port=10000)
+
