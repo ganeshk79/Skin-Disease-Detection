@@ -1,9 +1,5 @@
-flask
-flask-cors
-tensorflow-cpu
-pillow
-numpy
-werkzeug
-python-dotenv
-waitress
-gunicorn
+Flask==2.0.1
+tensorflow-cpu==2.8.0  # Use CPU version to save memory
+numpy==1.19.5
+Pillow==8.3.1
+gunicorn==20.1.0
