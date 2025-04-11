@@ -1,4 +1,5 @@
-Flask
+flask
+flask-cors
 tensorflow-cpu
 numpy
 Pillow
