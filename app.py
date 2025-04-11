@@ -29,7 +29,7 @@ def predict():
 
     imagefile = request.files['file']
     if imagefile.filename == '':
-        return jsonify({'error': 'No selected file'})
+        return jsonify({'error': 'No selected file'}), 400
 
     if (request.method =="POST"):    
         # Save the uploaded image to a temporary location
@@ -64,5 +64,6 @@ def predict():
         return jsonify({'predicted_class': predicted_label})
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=5000)
+      port = int(os.environ.get('PORT', 10000))
+    app.run(debug=False, host="0.0.0.0", port=port)
 
