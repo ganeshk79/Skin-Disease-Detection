@@ -18,8 +18,7 @@ if not os.path.exists("./uploadimage"):
     os.makedirs("./uploadimage")
 
 # Load the trained model
-model = load_model(os.path.abspath("D:\Python\github\Skin-Disease-Detection\sd_model.keras"))
-
+model_path = os.path.join(os.path.dirname(__file__), "sd_model.keras")
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
 #class_names = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
