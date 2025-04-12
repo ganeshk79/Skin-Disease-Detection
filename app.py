@@ -22,7 +22,7 @@ model_path = os.path.join(os.path.dirname(__file__), "sd_model.keras")
 # Define the classes (adjust according to your model's output)
 # Should match your notebook's classes
 #class_names = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
-class_names=['actinic keratosis', 'basal cell carcinoma','pigmented benign keratosis', 'dermatofibroma', 'melanoma', 'nevus', 'vascular lesion']
+class_names=['actinic keratosis', 'basal cell carcinoma','pigmented benign keratosis', 'dermatofibroma', 'melanoma', 'melanocytic nevi', 'vascular lesion']
 
 @app.route('/')
 def home():
